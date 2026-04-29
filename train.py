@@ -6,12 +6,13 @@ import numpy as np
 # Hostiles: Fast, Small, High Altitude, Heat Signature
 hostiles = np.random.rand(50, 4) * [4.0, 0.9, 30, 10] + [0.5, 0.1, 5, 10]
 # Friendlies: Slow, Large, Low Altitude
-friendlies = np.random.rand(50, 4) * [1.0, 0.5, 10, 1] + [0.5, 0.1, 5, 1]
+friendlies = np.random.rand(50, 4) * [1.0, 0.9, 10, 1] + [0.5, 0.5, 5, 1]
 
 X = np.vstack((hostiles, friendlies))
 y = np.array([1]*50 + [0]*50) # 1=Hostile, 0=Friendly
 
 # --- STEP 2: INITIALIZE THE NEURAL NETWORK ---
+
 weights = np.random.uniform(-1, 1, 4) 
 bias = 0.0
 lr = 0.1
@@ -31,30 +32,9 @@ for epoch in range(20):
         bias += lr * error
     print(totalerrors) 
     totalerrors=0
-       
+
+np.savez('model_weights.npz', weights=weights, bias=bias)
 
 print("Targeting System Online. Weights Calibrated.")
 
 
-# --- STEP 4: INTERACTIVE TARGET IDENTIFICATION ---
-def identify_target():
-    print("\n--- AEGIS RADAR INPUT ---")
-    try:
-        s = float(input("Enter Speed (Mach 0-5): "))
-        r = float(input("Enter Radar Size (0.1-1.0): "))
-        a = float(input("Enter Altitude (k-ft): "))
-        h = float(input("Enter Heat Signature: "))
-        
-        new_contact = np.array([s, r, a, h])
-        
-        # The ANN Prediction
-        score = np.dot(new_contact, weights) + bias
-        if score > 0:
-            print(">>> WARNING: HOSTILE DETECTED. ENGAGE TARGET. <<<")
-        else:
-            print(">>> STATUS: FRIENDLY. CLEAR FOR APPROACH. <<<")
-    except ValueError:
-        print("Invalid data format.")
-
-# Run the prediction
-identify_target()
