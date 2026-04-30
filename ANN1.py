@@ -1,11 +1,14 @@
 import numpy as np
 import streamlit as st
 
-data = np.load('model_weights.npz')
+data = np.load("model_weights.npz")
 
 # Pull them back out
-weights = data['weights']
-bias = data['bias']
+weights = data["weights"]
+bias = data["bias"]
+
+X_min = np.array([0.5, 0.1, 10.0, 350.0])  # Example mins from your data gen
+X_max = np.array([5.1, 3.0, 86.0, 1901.0])  # Example maxes from your data gen
 
 
 def set_seamless_2x2_bg(gif1, gif2, gif3, gif4):
@@ -67,8 +70,9 @@ def set_seamless_2x2_bg(gif1, gif2, gif3, gif4):
             <img src="{gif4}" class="quad-gif">
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
+
 
 # --- Your GIF Links ---
 # Use Direct Links (right-click > copy image address)
@@ -78,20 +82,14 @@ g1 = "https://media1.tenor.com/m/AOIRgNl5CF8AAAAd/a10-aviation.gif"
 g4 = "https://media1.tenor.com/m/5WuiQehCWfEAAAAC/military-air-force.gif"
 
 set_seamless_2x2_bg(g1, g2, g3, g4)
+
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+
 # --- STEP 4: INTERACTIVE TARGET IDENTIFICATION ---
-def identify_target(s, r, a, h):
-    print("\n--- AEGIS RADAR INPUT ---")
-    try:
-        new_contact = np.array([s, r, a, h])
-        
-        # The ANN Prediction
-        score = np.dot(new_contact, weights) + bias
-        if score > 0:
-            print(">>> WARNING: HOSTILE DETECTED. ENGAGE TARGET. <<<")
-        else:
-            print(">>> STATUS: FRIENDLY. CLEAR FOR APPROACH. <<<")
-    except ValueError:
-        print("Invalid data format.")
+
 
 st.markdown(
     """
@@ -105,29 +103,92 @@ st.markdown(
         margin-bottom: 10px;
     }
     </style>
-    <p class="glow-title">AEGIS Target Identification System</p>
+    <p class="glow-title">Advanced Entity Generalization and Identification System</p>
+    <p class="glow-title"><<< AEGIS >>></p>
+    <p class="glow-title">Calibrated for Hostile Detection and Target Engagement</p>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
-# Run the prediction
-st.markdown(":orange[**Input Speed (Mach 0-5)**]")
-s = st.number_input("Input Speed (Mach 0-5)", label_visibility="collapsed")
-st.markdown(":orange[**Input Radar Size (0.1-1.0)**]")
-r = st.number_input("Input Radar Size (0.1-1.0)", label_visibility="collapsed")
-st.markdown(":orange[**Input Altitude (k-ft)**]")
-a = st.number_input("Input Altitude (k-ft)", label_visibility="collapsed")
-st.markdown(":orange[**Input Heat Signature (0-10)**]")
-h = st.number_input("Input Heat Signature (0-10)", label_visibility="collapsed")
 
-if st.button("Identify Target"):
+col1, col2 = st.columns(2)
+
+# Run the prediction
+with col1:
+    st.markdown(":orange[**Input Speed (Mach 0-5)**]")
+    s = st.number_input("Input Speed (Mach 0-5)", label_visibility="collapsed")
+    st.markdown(":orange[**Input Radar Size (0.1-1.0)**]")
+    r = st.number_input("Input Radar Size (0.1-1.0)", label_visibility="collapsed")
+with col2:
+    st.markdown(":orange[**Input Altitude (k-ft)**]")
+    a = st.number_input("Input Altitude (k-ft)", label_visibility="collapsed")
+    st.markdown(":orange[**Input Heat Signature C (0-10)**]")
+    h = st.number_input("Input Heat Signature (0-10)", label_visibility="collapsed")
+
+if st.button("RUN AEGIS SCAN"):
     try:
-        new_contact = np.array([s, r, a, h])
+        # 1. Prepare raw input
+        raw_contact = np.array([s, r, a, h])
+
+        # 2. Normalize (The most important step!)
+        normalized_contact = (raw_contact - X_min) / (X_max - X_min)
+
+        # 3. Predict
+        z = np.dot(normalized_contact, weights) + bias
+        prob = sigmoid(z)
+
+        # 4. Display Results
         
-        # The ANN Prediction
-        score = np.dot(new_contact, weights) + bias
-        if score > 0:
-            st.markdown(":red[>>> WARNING: HOSTILE DETECTED. ENGAGE TARGET. <<<]")
+        st.markdown(
+                    f"""
+            <style>
+            .glow-title {{
+                color: white;
+                text-align: center;
+                font-size: 24px; /* Changed from 1px so you can see it! */
+                font-weight: bold;
+                text-shadow: 0 0 10px #00b7ff, 0 0 20px #00b7ff;
+                margin-bottom: 10px;
+            }}
+            </style>
+            <p class="glow-title">CONFIDENCE LEVEL: {prob*100:.2f}%</p>
+            """,
+                    unsafe_allow_html=True,
+        )
+
+        if prob > 0.5:
+            st.markdown(
+                """
+                <style>
+                .glow-title {
+                    color: Red;
+                    text-align: center;
+                    font-size: 1px;
+                    font-weight: bold;
+                    text-shadow: 0 0 10px #00b7ff, 0 0 20px #00b7ff;
+                    margin-bottom: 10px;
+                }
+                </style>
+                <p class="glow-title">HOSTILE DETECTED. ENGAGE TARGET.</p>
+                """,
+                unsafe_allow_html=True,
+            )
         else:
-            st.markdown(":green[>>> STATUS: FRIENDLY. CLEAR FOR APPROACH. <<<]")
-    except ValueError:
-        st.write("Invalid data format.")
+            st.markdown(
+                """
+                <style>
+                .glow-title {
+                    color: white;
+                    text-align: center;
+                    font-size: 1px;
+                    font-weight: bold;
+                    text-shadow: 0 0 10px #00b7ff, 0 0 20px #00b7ff;
+                    margin-bottom: 10px;
+                }
+                </style>
+                <p class="glow-title">FRIENDLY. CLEAR FOR APPROACH</p>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    except Exception as e:
+        st.error(f"System Error: {e}")
