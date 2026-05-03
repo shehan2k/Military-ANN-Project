@@ -6,9 +6,11 @@ data = np.load("model_weights.npz")
 # Pull them back out
 weights = data["weights"]
 bias = data["bias"]
+X_max = data["X_max"]
+X_min = data["X_min"]
 
-X_min = np.array([0.5, 0.1, 10.0, 350.0])  # Example mins from your data gen
-X_max = np.array([5.1, 3.0, 86.0, 1901.0])  # Example maxes from your data gen
+
+  # Example maxes from your data gen
 
 
 def set_seamless_2x2_bg(gif1, gif2, gif3, gif4):
@@ -150,7 +152,7 @@ if st.button("RUN AEGIS SCAN"):
                 margin-bottom: 10px;
             }}
             </style>
-            <p class="glow-title">CONFIDENCE LEVEL: {prob*100:.2f}%</p>
+            <p class="glow-title">PROBABILITY LEVEL: {prob*100:.2f}%</p>
             """,
                     unsafe_allow_html=True,
         )

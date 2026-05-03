@@ -49,7 +49,7 @@ for epoch in range(50):
     print(totalerrors) 
     totalerrors=0
 
-np.savez('model_weights.npz', weights=weights, bias=bias)
+np.savez('model_weights.npz', weights=weights, bias=bias, X_max=X_max, X_min=X_min)
 
 print("Targeting System Online. Weights Calibrated.")
 
