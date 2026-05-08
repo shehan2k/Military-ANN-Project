@@ -116,15 +116,15 @@ col1, col2 = st.columns(2)
 
 # Run the prediction
 with col1:
-    st.markdown(":orange[**Input Speed (Mach 0-5)**]")
-    s = st.number_input("Input Speed (Mach 0-5)", label_visibility="collapsed")
-    st.markdown(":orange[**Input Radar Size (0.1-1.0)**]")
-    r = st.number_input("Input Radar Size (0.1-1.0)", label_visibility="collapsed")
+    st.markdown(":orange[**Input Speed (Mach 0.1 -5)**]")
+    s = st.number_input("Input Speed (Mach 0.1-5)", label_visibility="collapsed")
+    st.markdown(":orange[**Input Radar Size (0.1-2.0)**]")
+    r = st.number_input("Input Radar Size (0.1-2.0)", label_visibility="collapsed")
 with col2:
-    st.markdown(":orange[**Input Altitude (k-ft)**]")
-    a = st.number_input("Input Altitude (k-ft)", label_visibility="collapsed")
-    st.markdown(":orange[**Input Heat Signature C (0-10)**]")
-    h = st.number_input("Input Heat Signature (0-10)", label_visibility="collapsed")
+    st.markdown(":orange[**Input Altitude (10kft - 85kft)**]")
+    a = st.number_input("Input Altitude (10kft - 85kft )", label_visibility="collapsed")
+    st.markdown(":orange[**Input Heat Signature C (0-1900)**]")
+    h = st.number_input("Input Heat Signature (0-1900)", label_visibility="collapsed")
 
 if st.button("RUN AEGIS SCAN"):
     try:
